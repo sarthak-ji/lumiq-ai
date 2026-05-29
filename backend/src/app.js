@@ -3,12 +3,12 @@ import cookieParser from 'cookie-parser';
 
 const app = express();
 
-// Middleware
-app.use(express.json({ limit: '16kb' }));
-app.use(express.urlencoded({ limit: '16kb', extended: true }));
+// Middleware..
+app.use(express.json()); // read JSON data coming from the client.
+app.use(express.urlencoded({extended: true})); // handles: form data sent through HTML forms.
 app.use(cookieParser());
 
-// Routes
+// Routes..
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Lumiq AI API' });
 });
