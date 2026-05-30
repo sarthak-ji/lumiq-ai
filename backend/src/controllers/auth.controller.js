@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/user.model.js";
+import {sendEmail} from "../services/mail.service.js";
 
 // ===================== Register Controller ========================
 /**
@@ -38,7 +39,6 @@ export async function register(req, res) {
     process.env.JWT_SECRET,
   );
 
-  res.cookie("token", token);
 
   await sendEmail({
     to: user.email,
