@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/user.model.js";
-import {sendEmail} from "../services/mail.service.js";
+import { sendEmail } from "../services/mail.service.js";
 
 // ===================== Register Controller ========================
 /**
@@ -9,7 +9,6 @@ import {sendEmail} from "../services/mail.service.js";
  * @access Public
  * @body {username, email, password, confirmPassword}
  */
-
 export async function register(req, res) {
   const { username, email, password } = req.body;
 
@@ -38,7 +37,6 @@ export async function register(req, res) {
     },
     process.env.JWT_SECRET,
   );
-
 
   await sendEmail({
     to: user.email,
@@ -75,8 +73,7 @@ export async function register(req, res) {
 export async function login(req, res) {
   const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email });
-
+  const user = await userModel.findOne({ email }).select("+password");
   if (!user) {
     return res.status(400).json({
       message: "Invalid email or password",
@@ -108,7 +105,6 @@ export async function login(req, res) {
       userId: user._id,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" },
   );
 
   res.cookie("token", token);
@@ -122,5 +118,71 @@ export async function login(req, res) {
       email: user.email,
     },
   });
+}
 
+
+// ===================== Get-Me Controller ========================
+/**
+ * @description Get current logged-in user's details
+ * @route GET /api/auth/get-me
+ * @access Private
+ */
+export async function getMe(req, res) {
+  const user = await userModel.findById(req.userId).select("-password");
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
+      success: false,
+      err: "User not found",
+    });
+  }
+  res.status(200).json({
+    message: "User details fetched successfully",
+    success: true,
+    user,
+  });
+}
+
+
+// ===================== Verify-Email Controller ========================
+/**
+ * @description Verify user's email address
+ * @route POST /api/auth/verify-email
+ * @access Public
+ * @body {token}
+ */
+export async function verifyEmail(req, res) {
+  const { token } = req.query;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await userModel.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid token or user does not exist",
+        success: false,
+        err: "User not found",
+      });
+    }
+
+    user.verified = true;
+
+    await user.save();
+
+    const html = `
+    <h1>Email Verified Successfully!</h1>
+    <p>Your email has been verified. You can now login to your account.</p>
+    <a href="http://localhost:8000/login">Go to Login</a>
+    `;
+
+    return res.send(html);
+  } catch (err) {
+    return res.status(400).json({
+      message: "Invalid or expired token",
+      success: false,
+      err: err.message,
+    });
+  }
 }

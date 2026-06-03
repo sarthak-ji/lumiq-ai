@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 6,
-      select: false, // Password won't be returned by default
+      select: false, // Password excluded by default, included only when explicitly selected with .select("+password")
     },
     verified: {
       type: Boolean,
