@@ -120,7 +120,6 @@ export async function login(req, res) {
   });
 }
 
-
 // ===================== Get-Me Controller ========================
 /**
  * @description Get current logged-in user's details
@@ -143,7 +142,6 @@ export async function getMe(req, res) {
   });
 }
 
-
 // ===================== Verify-Email Controller ========================
 /**
  * @description Verify user's email address
@@ -165,6 +163,14 @@ export async function verifyEmail(req, res) {
         success: false,
         err: "User not found",
       });
+    }
+
+    if (user.verified) {
+      return res.send(`
+        <h1>Email Already Verified</h1>
+        <p>You can login directly.</p>
+        <a href="http://localhost:8000/login">Go to Login</a>
+      `);
     }
 
     user.verified = true;
