@@ -12,36 +12,41 @@ import { sendEmail } from "../services/mail.service.js";
 export async function register(req, res) {
   const { username, email, password } = req.body;
 
-  const isUserAlreadyExists = await userModel.findOne({
-    $or: [{ email }, { password }],
-  });
-
-  if (isUserAlreadyExists) {
-    return res.status(400).json({
-      message:
-        "User already exists with the provided email or password. Please try again with different credentials.",
-      success: false,
-      err: "User already exists",
+  try {
+    const isUserAlreadyExists = await userModel.findOne({
+      $or: [{ email }, { username }],
     });
-  }
 
-  const user = await userModel.create({
-    username,
-    email,
-    password,
-  });
+    if (isUserAlreadyExists) {
+      return res.status(400).json({
+        message:
+          "User already exists with the provided email or username. Please try again with different credentials.",
+        success: false,
+        err: "User already exists",
+      });
+    }
 
-  const emailVerificationToken = jwt.sign(
-    {
-      userId: user._id,
-    },
-    process.env.JWT_SECRET,
-  );
+    const user = await userModel.create({
+      username,
+      email,
+      password,
+    });
 
-  await sendEmail({
-    to: user.email,
-    subject: "Welcome to Lumiq AI!",
-    html: `
+    const emailVerificationToken = jwt.sign(
+      {
+        userId: user._id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      },
+    );
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Welcome to Lumiq AI!",
+        html: `
       <h1>Hi ${user.username},</h1>
         <p>Thank you for registering at <strong>Lumiq AI</strong>. We're excited to have you on board!</p>
         <p>Please verify your email address by clicking the link below:</p>
@@ -49,17 +54,95 @@ export async function register(req, res) {
         <p>If you did not create an account, please ignore this email.</p>
         <p>Best regards,<br/>The Lumiq AI Team</p>
     `,
-  });
+      });
+    } catch (err) {
+      return res.status(500).json({
+        message: "Failed to send verification email. Please try again.",
+        success: false,
+        err: err.message,
+      });
+    }
 
-  res.status(201).json({
-    message: "User registered successfully.",
-    success: true,
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    },
-  });
+    return res.status(201).json({
+      message: "User registered successfully.",
+      success: true,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Failed to register user. Please try again.",
+      success: false,
+      err: err.message,
+    });
+  }
+}
+
+// ===================== Re-send email verification Controller ========================
+/*
+ * @description Re-send email verification link to user
+ * @route POST /api/auth/resend-verification-email
+ * @access Public
+ * @body {email}
+ */
+export async function resendVerificationEmail(req, res) {
+  const { email } = req.body;
+
+  try {
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+        success: false,
+        err: "User not found",
+      });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({
+        message: "Email is already verified.",
+        success: false,
+      });
+    }
+
+    const emailVerificationToken = jwt.sign(
+      {
+        userId: user._id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      },
+    );
+
+    await sendEmail({
+      to: user.email,
+      subject: "Lumiq AI - Email Verification",
+      html: `
+        <h1>Hi ${user.username},</h1>
+        <p>You requested to resend the email verification link. Please click the link below to verify your email address:</p>
+        <a href="http://localhost:8000/api/auth/verify-email?token=${emailVerificationToken}">Verify Email</a>
+        <p>If you did not create an account, please ignore this email.</p>
+        <p>Best regards,<br/>The Lumiq AI Team</p>
+        `,
+    });
+
+    return res.status(200).json({
+      message:
+        "Verification email resent successfully. Please check your inbox.",
+      success: true,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Failed to resend verification email. Please try again.",
+      success: false,
+      err: err.message,
+    });
+  }
 }
 
 // ===================== Login Controller ========================
@@ -167,10 +250,10 @@ export async function verifyEmail(req, res) {
 
     if (user.verified) {
       return res.send(`
-        <h1>Email Already Verified</h1>
-        <p>You can login directly.</p>
-        <a href="http://localhost:8000/login">Go to Login</a>
-      `);
+    <h1>Email Already Verified</h1>
+    <p>You can login directly.</p>
+    <a href="http://localhost:8000/login">Go to Login</a>
+  `);
     }
 
     user.verified = true;
@@ -184,6 +267,7 @@ export async function verifyEmail(req, res) {
     `;
 
     return res.send(html);
+    
   } catch (err) {
     return res.status(400).json({
       message: "Invalid or expired token",
