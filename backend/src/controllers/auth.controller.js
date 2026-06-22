@@ -37,9 +37,6 @@ export async function register(req, res) {
         userId: user._id,
       },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      },
     );
 
     try {
@@ -114,9 +111,6 @@ export async function resendVerificationEmail(req, res) {
         userId: user._id,
       },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      },
     );
 
     await sendEmail({
