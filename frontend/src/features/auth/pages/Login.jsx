@@ -12,44 +12,44 @@ import { Link, useNavigate, Navigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useSelector } from "react-redux";
 
-
 const Login = () => {
-    const [ email, setEmail ] = useState('')
-    const [ password, setPassword ] = useState('')
-    const [ showPassword, setShowPassword ] = useState(false)
-    const [ isLoading, setIsLoading ] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const user = useSelector(state => state.auth.user)
-    const loading = useSelector(state => state.auth.loading)
+  const user = useSelector((state) => state.auth.user);
+  const loading = useSelector((state) => state.auth.loading);
 
-    const { handleLogin } = useAuth()
+  const { handleLogin } = useAuth();
 
-    const navigate = useNavigate()
+  const navigate = useNavigate();
 
-    const submitForm = async (event) => {
-        event.preventDefault()
-        setIsLoading(true)
+  const submitForm = async (event) => {
+    event.preventDefault();
+    setIsLoading(true);
 
-        const payload = {
-            email,
-            password,
-        }
+    const payload = {
+      email,
+      password,
+    };
 
-        try {
-            await handleLogin(payload)
-            navigate("/")
-        } catch (error) {
-            console.error("Login error:", error)
-            setIsLoading(false)
-        }
+    try {
+      await handleLogin(payload);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    if(!loading && user){
-        return <Navigate to="/" replace />
-    }
+  if (!loading && user) {
+    return <Navigate to="/" replace />;
+  }
 
-    return (
-      <div className="min-h-screen bg-linear-to-br from-black via-slate-900 to-emerald-900 flex items-center justify-center p-4 overflow-hidden">
+  return (
+    <div className="min-h-screen bg-linear-to-br from-black via-slate-900 to-emerald-900 flex items-center justify-center p-4 overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
