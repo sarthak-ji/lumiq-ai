@@ -1,51 +1,55 @@
-import React, { useState } from 'react'
-import { Mail, Lock, Eye, EyeOff, MessageSquare, Zap, Brain } from 'lucide-react'
+import React, { useState } from "react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  MessageSquare,
+  Zap,
+  Brain,
+} from "lucide-react";
+import { Link, useNavigate, Navigate } from "react-router";
+import { useAuth } from "../hooks/useAuth";
+import { useSelector } from "react-redux";
+
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+    const [ email, setEmail ] = useState('')
+    const [ password, setPassword ] = useState('')
+    const [ showPassword, setShowPassword ] = useState(false)
+    const [ isLoading, setIsLoading ] = useState(false)
 
-  // Two-way binding handler
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
+    const user = useSelector(state => state.auth.user)
+    const loading = useSelector(state => state.auth.loading)
 
-  // Form submit handler
-  const handleSubmitForm = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    
-    try {
-      console.log('Login Data:', formData)
-      // Add your API call here
-      // const response = await fetch('/api/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // })
-      
-      // Simulate API delay
-      setTimeout(() => {
-        alert('Login successful: ' + formData.email)
-        setFormData({ email: '', password: '' })
-        setIsLoading(false)
-      }, 1000)
-    } catch (error) {
-      console.error('Login error:', error)
-      setIsLoading(false)
+    const { handleLogin } = useAuth()
+
+    const navigate = useNavigate()
+
+    const submitForm = async (event) => {
+        event.preventDefault()
+        setIsLoading(true)
+
+        const payload = {
+            email,
+            password,
+        }
+
+        try {
+            await handleLogin(payload)
+            navigate("/")
+        } catch (error) {
+            console.error("Login error:", error)
+            setIsLoading(false)
+        }
     }
-  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-emerald-900 flex items-center justify-center p-4 overflow-hidden">
+    if(!loading && user){
+        return <Navigate to="/" replace />
+    }
+
+    return (
+      <div className="min-h-screen bg-linear-to-br from-black via-slate-900 to-emerald-900 flex items-center justify-center p-4 overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
@@ -58,42 +62,46 @@ const Login = () => {
           <div className="text-center space-y-4">
             <div className="flex justify-center">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full blur-lg opacity-50"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-500 rounded-full blur-lg opacity-50"></div>
                 <div className="relative bg-black/50 backdrop-blur-xl p-8 rounded-full border border-emerald-500/50">
                   <Brain size={60} className="text-emerald-400" />
                 </div>
               </div>
             </div>
-            <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
+            <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400">
               Lumiq AI
             </h2>
-            <p className="text-emerald-200 text-lg">Intelligent Conversations</p>
+            <p className="text-emerald-200 text-lg">
+              Intelligent Conversations
+            </p>
           </div>
 
           {/* Chatbot Illustration */}
           <div className="relative w-full max-w-sm h-64 flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/20 to-transparent rounded-3xl backdrop-blur-sm border border-emerald-500/30"></div>
-            
+            <div className="absolute inset-0 bg-linear-to-b from-emerald-500/20 to-transparent rounded-3xl backdrop-blur-sm border border-emerald-500/30"></div>
+
             <div className="relative space-y-6 w-full px-8">
               {/* Chat bubbles animation */}
               <div className="space-y-4">
                 {/* Bot message */}
                 <div className="flex justify-start">
-                  <div className="bg-gradient-to-r from-emerald-500/30 to-teal-500/30 backdrop-blur-md border border-emerald-400/50 rounded-2xl px-4 py-2 max-w-xs">
-                    <p className="text-emerald-100 text-sm">Hello! I'm Lumiq 🤖</p>
+                  <div className="bg-linear-to-r from-emerald-500/30 to-teal-500/30 backdrop-blur-md border border-emerald-400/50 rounded-2xl px-4 py-2 max-w-xs">
+                    <p className="text-emerald-100 text-sm">
+                      Hello! I'm Lumiq 🤖
+                    </p>
                   </div>
                 </div>
 
                 {/* User message */}
                 <div className="flex justify-end">
-                  <div className="bg-gradient-to-r from-teal-500/40 to-emerald-500/40 backdrop-blur-md border border-teal-400/50 rounded-2xl px-4 py-2 max-w-xs">
+                  <div className="bg-linear-to-r from-teal-500/40 to-emerald-500/40 backdrop-blur-md border border-teal-400/50 rounded-2xl px-4 py-2 max-w-xs">
                     <p className="text-teal-100 text-sm">How can you help?</p>
                   </div>
                 </div>
 
                 {/* Bot message with animation */}
                 <div className="flex justify-start">
-                  <div className="bg-gradient-to-r from-emerald-500/30 to-teal-500/30 backdrop-blur-md border border-emerald-400/50 rounded-2xl px-4 py-3 max-w-xs">
+                  <div className="bg-linear-to-r from-emerald-500/30 to-teal-500/30 backdrop-blur-md border border-emerald-400/50 rounded-2xl px-4 py-3 max-w-xs">
                     <div className="flex gap-1 items-center">
                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce animation-delay-1000"></div>
@@ -120,7 +128,9 @@ const Login = () => {
 
           {/* Features */}
           <div className="text-center space-y-2">
-            <p className="text-emerald-300 font-semibold">Powered by Advanced AI</p>
+            <p className="text-emerald-300 font-semibold">
+              Powered by Advanced AI
+            </p>
             <div className="flex gap-4 justify-center text-sm text-emerald-200">
               <span>⚡ Fast</span>
               <span>🔒 Secure</span>
@@ -135,24 +145,25 @@ const Login = () => {
           <div className="backdrop-blur-2xl bg-white/5 rounded-3xl p-8 border border-emerald-500/30 shadow-2xl">
             {/* Header */}
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 mb-2">
+              <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400 mb-2">
                 Welcome Back
               </h1>
               <p className="text-emerald-200">Sign in to your account</p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmitForm} className="space-y-6">
+            <form onSubmit={submitForm} className="space-y-6">
               {/* Email Input */}
               <div className="relative">
-                <label className="block text-sm font-semibold text-emerald-100 mb-2">Email Address</label>
+                <label className="block text-sm font-semibold text-emerald-100 mb-2">
+                  Email Address
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-teal-400" />
                   <input
                     type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     required
                     className="w-full pl-12 pr-4 py-3 bg-white/5 border border-emerald-500/30 rounded-xl text-white placeholder-emerald-400 focus:outline-none focus:border-teal-400 focus:bg-white/10 transition duration-300 backdrop-blur-sm"
@@ -162,14 +173,15 @@ const Login = () => {
 
               {/* Password Input */}
               <div className="relative">
-                <label className="block text-sm font-semibold text-emerald-100 mb-2">Password</label>
+                <label className="block text-sm font-semibold text-emerald-100 mb-2">
+                  Password
+                </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-teal-400" />
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     required
                     className="w-full pl-12 pr-12 py-3 bg-white/5 border border-emerald-500/30 rounded-xl text-white placeholder-emerald-400 focus:outline-none focus:border-teal-400 focus:bg-white/10 transition duration-300 backdrop-blur-sm"
@@ -183,10 +195,11 @@ const Login = () => {
                   </button>
                 </div>
               </div>
-
-              {/* Forgot Password Link */}
               <div className="flex justify-end">
-                <a href="#" className="text-sm text-teal-400 hover:text-teal-300 transition">
+                <a
+                  href="#"
+                  className="text-sm text-teal-400 hover:text-teal-300 transition"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -195,9 +208,9 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold rounded-xl transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/50"
+                className="w-full py-3 px-4 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold rounded-xl transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/50"
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? "Signing in..." : "Sign In"}
               </button>
             </form>
 
@@ -210,10 +223,13 @@ const Login = () => {
 
             {/* Footer */}
             <p className="text-center text-emerald-200">
-              Don't have an account?{' '}
-              <a href="/register" className="text-teal-400 font-semibold hover:text-teal-300 transition">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="text-teal-400 font-semibold hover:text-teal-300 transition"
+              >
                 Create one
-              </a>
+              </Link>
             </p>
           </div>
         </div>
@@ -239,7 +255,7 @@ const Login = () => {
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

@@ -67,7 +67,7 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-emerald-900 flex items-center justify-center p-4 overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-black via-slate-900 to-emerald-900 flex items-center justify-center p-4 overflow-hidden">
       <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
       <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
@@ -77,34 +77,34 @@ const Register = () => {
           <div className="text-center space-y-4">
             <div className="flex justify-center">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full blur-lg opacity-50"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-500 rounded-full blur-lg opacity-50"></div>
                 <div className="relative bg-black/50 backdrop-blur-xl p-8 rounded-full border border-emerald-500/50">
                   <Brain size={60} className="text-emerald-400" />
                 </div>
               </div>
             </div>
-            <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
+            <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400">
               Lumiq AI
             </h2>
             <p className="text-emerald-200 text-lg">Intelligent Conversations</p>
           </div>
 
           <div className="relative w-full max-w-sm h-64 flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/20 to-transparent rounded-3xl backdrop-blur-sm border border-emerald-500/30"></div>
+            <div className="absolute inset-0 bg-linear-to-b from-emerald-500/20 to-transparent rounded-3xl backdrop-blur-sm border border-emerald-500/30"></div>
             <div className="relative space-y-6 w-full px-8">
               <div className="space-y-4">
                 <div className="flex justify-start">
-                  <div className="bg-gradient-to-r from-emerald-500/30 to-teal-500/30 backdrop-blur-md border border-emerald-400/50 rounded-2xl px-4 py-2 max-w-xs">
+                  <div className="bg-linear-to-r from-emerald-500/30 to-teal-500/30 backdrop-blur-md border border-emerald-400/50 rounded-2xl px-4 py-2 max-w-xs">
                     <p className="text-emerald-100 text-sm">Welcome to Lumiq! 🤖</p>
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <div className="bg-gradient-to-r from-teal-500/40 to-emerald-500/40 backdrop-blur-md border border-teal-400/50 rounded-2xl px-4 py-2 max-w-xs">
+                  <div className="bg-linear-to-r from-teal-500/40 to-emerald-500/40 backdrop-blur-md border border-teal-400/50 rounded-2xl px-4 py-2 max-w-xs">
                     <p className="text-teal-100 text-sm">Tell me more</p>
                   </div>
                 </div>
                 <div className="flex justify-start">
-                  <div className="bg-gradient-to-r from-emerald-500/30 to-teal-500/30 backdrop-blur-md border border-emerald-400/50 rounded-2xl px-4 py-3 max-w-xs">
+                  <div className="bg-linear-to-r from-emerald-500/30 to-teal-500/30 backdrop-blur-md border border-emerald-400/50 rounded-2xl px-4 py-3 max-w-xs">
                     <div className="flex gap-1 items-center">
                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce animation-delay-1000"></div>
@@ -140,7 +140,7 @@ const Register = () => {
         <div className="w-full">
           <div className="backdrop-blur-2xl bg-white/5 rounded-3xl p-8 border border-emerald-500/30 shadow-2xl">
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 mb-2">
+              <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400 mb-2">
                 Create Account
               </h1>
               <p className="text-emerald-200">Join us today and get started</p>
@@ -243,7 +243,7 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold rounded-xl transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/50 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold rounded-xl transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/50 flex items-center justify-center gap-2"
               >
                 {isLoading ? 'Creating account...' : (
                   <>
