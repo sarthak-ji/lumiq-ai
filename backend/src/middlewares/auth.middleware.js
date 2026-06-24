@@ -1,32 +1,46 @@
 import jwt from "jsonwebtoken";
+import userModel from "../models/user.model.js";
 
+export async function authUser(req, res, next) {
 
-export default function authUser(req, res, next) {
+  const token = req.cookies.token;
 
-    const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorized",
+      success: false,
+      err: "No token provided",
+    });
+  }
 
-    if (!token) {
-        return res.status(401).json({
-            message: "Unauthorized",
-            success: false,
-            err: "No token provided"
-        })
-    }
+  // console.log("Cookies:", req.cookies);
+  // console.log("Token:", req.cookies.token);
 
-    try {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // console.log("DECODED:", decoded);
 
-        req.userId = decoded.userId;
+    const user = await userModel.findById(decoded.userId);
 
-        next();
+    // console.log("USER:", user);
 
-    } catch (err) {
-        return res.status(401).json({
-            message: "Unauthorized",
-            success: false,
-            err: "Invalid token"
-        })
-    }
+    req.user = user;
 
+    next();
+
+  } catch (err) {
+
+      // console.log("AUTH ERROR:", err);
+
+      return res.status(401).json({
+          message: "Unauthorized",
+          success: false,
+          err: "Invalid token"
+      });
+  }
+  
 }
+
+
+export default authUser;
