@@ -35,6 +35,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     chat.initializeSocketConnection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ const Dashboard = () => {
     }, 1500 + Math.random() * 1000);
   };
 
-  const getAIResponse = (userMsg) => {
+  const getAIResponse = () => {
     const responses = [
       "That's a great question! I'd be happy to help you with that. Let me think through the best approach...",
       "I understand what you're looking for. Here's what I'd recommend based on my analysis...",
