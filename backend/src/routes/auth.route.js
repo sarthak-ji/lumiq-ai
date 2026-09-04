@@ -16,7 +16,6 @@ import {
 import authUser from "../middlewares/auth.middleware.js";
 
 
-
 const authRouter = Router();
 
 /**

@@ -1,0 +1,256 @@
+1. Big-picture architecture                    
+
+                    FRONTEND
+                       │
+                       │ HTTP Request
+                       ▼
+              ┌─────────────────┐
+              │   auth.route.js │
+              └────────┬────────┘
+                       │
+          ┌────────────┼─────────────┐
+          ▼            ▼             ▼
+      register       login         getMe
+          │            │             │
+          ▼            ▼             ▼
+       MongoDB       MongoDB      MongoDB
+          │            │             │
+          ▼            ▼
+      JWT Token     JWT Token
+          │            │
+          ▼            ▼
+    Email Service   Cookie
+          │            │
+          ▼            ▼
+    Verify Email    Logged In
+
+
+2. REGISTER
+
+Frontend
+   │
+   │ POST /api/auth/register
+   ▼
+authRouter
+   │
+   ▼
+register()
+   │
+   ├── Extract username, email, password
+   │
+   ├── Check if user already exists
+   │
+   ├── Create user
+   │       │
+   │       └── Mongoose pre("save")
+   │                │
+   │                └── bcrypt.hash(password)
+   │
+   ├── Generate JWT verification token
+   │
+   ├── Send verification email
+   │
+   └── Return 201 response
+
+
+2. RE-SEND VERIFICATION EMAIL
+
+Frontend
+   │
+   ▼
+resendVerificationEmail()
+   │
+   ├── Find user by email
+   │
+   ├── User exists?
+   │       │
+   │       └── No → 404
+   │
+   ├── Already verified?
+   │       │
+   │       └── Yes → 400
+   │
+   ├── Generate new JWT
+   │
+   ├── Send email
+   │
+   └── Return success
+
+
+3. LOGIN
+
+Frontend
+   │
+   │ POST /api/auth/login
+   ▼
+login()
+   │
+   ├── Find user by email
+   │
+   ├── Get stored password hash
+   │
+   ├── Compare entered password
+   │
+   ├── Check email verification
+   │
+   ├── Generate JWT
+   │
+   ├── Store JWT in cookie
+   │
+   └── Return user information
+
+
+4. GET-ME
+
+                    FRONTEND
+                       │
+                       │ GET /api/auth/get-me
+                       │
+                       │ Cookie: token=<JWT>
+                       ▼
+                 AUTH ROUTER
+                       │
+                       ▼
+              AUTH MIDDLEWARE
+                       │
+                Read token
+                       │
+                       ▼
+              jwt.verify(token)
+                       │
+                ┌──────┴──────┐
+                │             │
+             Invalid        Valid
+                │             │
+                ▼             ▼
+             401/403     Extract userId
+                              │
+                              ▼
+                     req.userId = userId
+                              │
+                              ▼
+                       getMe controller
+                              │
+                              ▼
+                   Find user in MongoDB
+                              │
+                              ▼
+                     Remove password
+                              │
+                              ▼
+                       Send user data
+                              │
+                              ▼
+                         FRONTEND
+
+
+5. VERIFY-EMAIL
+
+Email
+  │
+  │ User clicks Verify Email
+  ▼
+/api/auth/verify-email
+  │
+  ▼
+verifyEmail()
+  │
+  ├── Get token from req.query
+  │
+  ├── jwt.verify()
+  │
+  ├── Extract userId
+  │
+  ├── Find user in MongoDB
+  │
+  ├── Check if already verified
+  │
+  ├── user.verified = true
+  │
+  ├── user.save()
+  │
+  └── Send success HTML
+
+
+------------------------------------- COMPLETE AUTHENTICATION LIFECYCLE -------------------------------------
+
+                  REGISTER
+                     │
+                     ▼
+              Check existing user
+                     │
+                     ▼
+               Create user
+                     │
+                     ▼
+             bcrypt hashes password
+                     │
+                     ▼
+               Save to MongoDB
+                     │
+                     ▼
+                Generate JWT
+                     │
+                     ▼
+          Send verification email
+                     │
+                     ▼
+                USER CLICKS
+                     │
+                     ▼
+                VERIFY EMAIL
+                     │
+                     ▼
+              jwt.verify(token)
+                     │
+                     ▼
+              Find user by ID
+                     │
+                     ▼
+              verified = true
+                     │
+                     ▼
+                   LOGIN
+                     │
+                     ▼
+              Find user by email
+                     │
+                     ▼
+            Get password hash
+                     │
+                     ▼
+          bcrypt.compare(password)
+                     │
+                     ▼
+            Check verified === true
+                     │
+                     ▼
+               Generate JWT
+                     │
+                     ▼
+              Store JWT in cookie
+                     │
+                     ▼
+                  LOGGED IN
+                     │
+                     ▼
+          Request protected endpoint
+                     │
+                     ▼
+             Auth Middleware
+                     │
+                     ▼
+              Verify JWT cookie
+                     │
+                     ▼
+             req.userId = userId
+                     │
+                     ▼
+                  getMe()
+                     │
+                     ▼
+              Find user in DB
+                     │
+                     ▼
+             Return user details
+
