@@ -23,7 +23,7 @@ app.use(cors({
     origin: "http://localhost:5173", // Allow requests from the React frontend running on port 5173
     credentials: true, // Allow cookies to be sent with cross-origin requests
 
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allow these HTTP methods from the frontend
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allow these HTTP methods from the frontend
 }));
 
 

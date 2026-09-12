@@ -1,12 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useChat } from '../hooks/useChat';
 import { setUser } from '../../auth/auth.slice';
+import { setCurrentChatId } from '../chat.slice';
 import {
   Brain,
   Send,
   Plus,
-  MessageSquare,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -18,67 +18,52 @@ import {
   Paperclip,
   MoreHorizontal,
   Search,
-  Hash
+  Hash,
+  Pencil,
+  Trash2,
+  Check,
+  X
 } from 'lucide-react';
 
 const Dashboard = () => {
   const chat = useChat();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const { chats, currentChatId, error } = useSelector((state) => state.chat);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [search, setSearch] = useState('');
+  const [menuChatId, setMenuChatId] = useState(null);
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
     chat.initializeSocketConnection();
+    chat.handleGetChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const messages = useMemo(() => chats[currentChatId]?.messages || [], [chats, currentChatId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const handleSendMessage = (text) => {
+  const handleSendMessage = async (text) => {
     const content = text || message.trim();
     if (!content) return;
 
-    const userMessage = {
-      id: Date.now(),
-      role: 'user',
-      content,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
     setMessage('');
     setIsTyping(true);
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage = {
-        id: Date.now() + 1,
-        role: 'assistant',
-        content: getAIResponse(content),
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, aiMessage]);
+    try {
+      await chat.handleSendMessage({ message: content, chatId: currentChatId });
+    } finally {
       setIsTyping(false);
-    }, 1500 + Math.random() * 1000);
-  };
-
-  const getAIResponse = () => {
-    const responses = [
-      "That's a great question! I'd be happy to help you with that. Let me think through the best approach...",
-      "I understand what you're looking for. Here's what I'd recommend based on my analysis...",
-      "Interesting! Let me break this down for you step by step so it's easy to follow.",
-      "I've analyzed your query and here's a comprehensive response that should address your needs.",
-      "Great thinking! Here are some insights that might help you move forward with this."
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -92,6 +77,32 @@ const Dashboard = () => {
     dispatch(setUser(null));
   };
 
+  const handleNewChat = () => {
+    dispatch(setCurrentChatId(null));
+    setMessage('');
+    setMenuChatId(null);
+    inputRef.current?.focus();
+  };
+
+  const startRename = (item) => {
+    setEditingChatId(item.id);
+    setRenameValue(item.title);
+    setMenuChatId(null);
+  };
+
+  const submitRename = async (chatId) => {
+    const title = renameValue.trim();
+    if (!title) return;
+    await chat.handleRenameChat(chatId, title);
+    setEditingChatId(null);
+  };
+
+  const handleDelete = async (chatId) => {
+    if (!window.confirm('Delete this chat? This cannot be undone.')) return;
+    await chat.handleDeleteChat(chatId);
+    setMenuChatId(null);
+  };
+
   const formatTime = (date) => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
@@ -103,12 +114,9 @@ const Dashboard = () => {
     { icon: <Zap size={18} />, label: 'Quick answer', prompt: 'What is the difference between...' },
   ];
 
-  const chatHistory = [
-    { id: 1, title: 'React component help', time: 'Today' },
-    { id: 2, title: 'API integration guide', time: 'Today' },
-    { id: 3, title: 'Database optimization', time: 'Yesterday' },
-    { id: 4, title: 'Deploy to production', time: 'Yesterday' },
-  ];
+  const chatHistory = Object.values(chats)
+    .filter((item) => item.title.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
 
   return (
     <div className="h-screen flex bg-[#0a0e1a] overflow-hidden">
@@ -137,7 +145,7 @@ const Dashboard = () => {
           {/* New Chat Button */}
           <div className="p-3">
             <button
-              onClick={() => { setMessages([]); setMessage(''); }}
+              onClick={handleNewChat}
               className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 hover:from-blue-500/20 hover:to-indigo-500/20 border border-indigo-500/20 hover:border-indigo-400/40 rounded-xl text-slate-200 font-medium transition-all duration-300 group"
             >
               <Plus size={18} className="text-indigo-400 group-hover:text-indigo-300 transition-colors" />
@@ -152,6 +160,8 @@ const Dashboard = () => {
               <input
                 type="text"
                 placeholder="Search chats..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 bg-white/[0.03] border border-indigo-500/10 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400/30 transition-all"
               />
             </div>
@@ -161,17 +171,49 @@ const Dashboard = () => {
           <div className="flex-1 overflow-y-auto px-3 py-2">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mb-2">Recent</p>
             <div className="space-y-1">
+              {chatHistory.length === 0 && <p className="px-2 py-4 text-xs text-slate-600">{search ? 'No chats found.' : 'Start a new conversation.'}</p>}
               {chatHistory.map((item) => (
-                <button
-                  key={item.id}
-                  className="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all duration-200 group"
-                >
-                  <Hash size={14} className="text-slate-600 group-hover:text-indigo-400 flex-shrink-0 transition-colors" />
-                  <span className="truncate flex-1">{item.title}</span>
-                  <span className="text-xs text-slate-600 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <MoreHorizontal size={14} />
-                  </span>
-                </button>
+                <div key={item.id} className="relative group">
+                  {editingChatId === item.id ? (
+                    <div className="flex items-center gap-1 px-2 py-1.5">
+                      <input
+                        autoFocus
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') submitRename(item.id);
+                          if (e.key === 'Escape') setEditingChatId(null);
+                        }}
+                        className="min-w-0 flex-1 bg-white/[0.06] border border-indigo-400/30 rounded px-2 py-1 text-sm text-white focus:outline-none"
+                      />
+                      <button onClick={() => submitRename(item.id)} className="p-1 text-emerald-400 hover:bg-emerald-500/10 rounded" title="Save"><Check size={14} /></button>
+                      <button onClick={() => setEditingChatId(null)} className="p-1 text-slate-500 hover:bg-white/[0.06] rounded" title="Cancel"><X size={14} /></button>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => chat.handleOpenChat(item.id, chats)}
+                        className={`w-full text-left flex items-center gap-3 px-3 py-2.5 pr-10 rounded-lg text-sm transition-all duration-200 ${currentChatId === item.id ? 'text-slate-100 bg-indigo-500/15' : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'}`}
+                      >
+                        <Hash size={14} className="text-slate-600 group-hover:text-indigo-400 flex-shrink-0 transition-colors" />
+                        <span className="truncate flex-1">{item.title}</span>
+                      </button>
+                      <button
+                        onClick={() => setMenuChatId(menuChatId === item.id ? null : item.id)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-600 hover:text-slate-200 rounded opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        title="Chat actions"
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+                      {menuChatId === item.id && (
+                        <div className="absolute right-1 top-10 z-20 w-32 rounded-lg border border-indigo-500/20 bg-[#151d34] p-1 shadow-xl">
+                          <button onClick={() => startRename(item)} className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-300 hover:bg-white/[0.06] rounded"><Pencil size={13} /> Rename</button>
+                          <button onClick={() => handleDelete(item.id)} className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-red-300 hover:bg-red-500/10 rounded"><Trash2 size={13} /> Delete</button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -228,6 +270,7 @@ const Dashboard = () => {
 
         {/* Messages Area */}
         <div className="relative z-10 flex-1 overflow-y-auto px-4 py-6">
+          {error && <p className="relative z-10 mx-auto mt-3 max-w-3xl rounded-lg bg-red-500/10 px-4 py-2 text-sm text-red-300">{error}</p>}
           {messages.length === 0 ? (
             /* ─── Empty State ─── */
             <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto">
@@ -271,7 +314,7 @@ const Dashboard = () => {
             <div className="max-w-3xl mx-auto space-y-6">
               {messages.map((msg, index) => (
                 <div
-                  key={msg.id}
+                  key={`${msg.timestamp || 'message'}-${index}`}
                   className={`flex gap-3 animate-fade-in ${
                     msg.role === 'user' ? 'justify-end' : 'justify-start'
                   }`}

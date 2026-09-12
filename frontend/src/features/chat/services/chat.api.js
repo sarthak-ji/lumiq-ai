@@ -8,7 +8,7 @@ const api = axios.create({
 
 export const sendMessage = async (message, chatId) => {
     try {
-        const response = await api.post("api/chats/message", { message, chatId });
+        const response = await api.post("api/chats/message", { message, chat: chatId });
         return response.data;
     }
     catch (error) {
@@ -43,6 +43,16 @@ export const deleteChat = async (chatId) => {
         return response.data;
     }
     catch (error) {
-        throw error.response.data;
+        throw error.response?.data || error;
+    }
+}
+
+export const renameChat = async (chatId, title) => {
+    try {
+        const response = await api.patch(`api/chats/${chatId}`, { title });
+        return response.data;
+    }
+    catch (error) {
+        throw error.response?.data || error;
     }
 }
