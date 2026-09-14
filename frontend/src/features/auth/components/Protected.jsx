@@ -10,11 +10,11 @@ const Protected = ({ children }) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0f1629] to-[#111d3a] flex flex-col items-center justify-center gap-6">
+            <div className="auth-shell min-h-screen bg-gradient-to-br from-[#0a0e1a] via-[#0f1629] to-[#111d3a] flex flex-col items-center justify-center gap-6">
                 {/* Pulsing logo */}
                 <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 rounded-full blur-xl opacity-40 animate-pulse-glow"></div>
-                    <div className="relative bg-[#0f1629]/80 backdrop-blur-xl p-6 rounded-full border border-indigo-500/30 shadow-[0_0_40px_rgba(99,102,241,0.15)]">
+                    <div className="relative bg-[#0f1629]/80 backdrop-blur-xl p-6 rounded-full border border-indigo-500/30 shadow-[0_0_40px_rgba(34,211,238,0.15)]">
                         <Brain size={40} className="text-blue-400" />
                     </div>
                 </div>

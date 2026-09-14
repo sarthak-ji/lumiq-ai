@@ -1,26 +1,19 @@
 @import "tailwindcss";
 
-/* Make sure Tailwind v4 scans all source files */
 @source "../**/*.{js,jsx,ts,tsx}";
 @source "../../index.html";
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-
-  --color-lumiq-900: #0a0e1a;
-  --color-lumiq-800: #0f1629;
-  --color-lumiq-700: #111d3a;
-  --color-lumiq-600: #162044;
-  --color-lumiq-500: #1e2d5a;
-
-  --color-accent-blue: #3b82f6;
-  --color-accent-indigo: #6366f1;
-  --color-accent-violet: #8b5cf6;
-  --color-accent-sky: #60a5fa;
-
-  /* In Tailwind v4, --animate-* tokens take the keyframe name only.
-     The .animate-* utility is then built as `animation: <name> var(--animate-duration,0s) ...`.
-     If you need full control, apply the animation via the `animation` shorthand in your CSS. */
+  --color-lumiq-900: #030405;
+  --color-lumiq-800: #080a0c;
+  --color-lumiq-700: #101417;
+  --color-lumiq-600: #171c20;
+  --color-lumiq-500: #222a2f;
+  --color-accent-blue: #22d3ee;
+  --color-accent-indigo: #06b6d4;
+  --color-accent-violet: #0891b2;
+  --color-accent-sky: #67e8f9;
   --animate-blob: blob;
   --animate-float: float;
   --animate-pulse-glow: pulse-glow;
@@ -28,6 +21,17 @@
   --animate-fade-in: fadeIn;
   --animate-slide-up: slideUp;
   --animate-bounce-dot: bounce-dot;
+
+  /* Theme mappings */
+  --color-base: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-surface-hover: var(--bg-surface-hover);
+  --color-primary: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
 }
 
 @keyframes blob {
@@ -37,13 +41,13 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
+  0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-20px); }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.05); }
 }
 
 @keyframes shimmer {
@@ -66,48 +70,517 @@
   40% { transform: scale(1); }
 }
 
-/* Tailwind v4: bind the keyframe duration/timing to each .animate-* utility.
-   v4 generates `.animate-fade-in { animation: fadeIn var(--animate-duration,0s) ... }`,
-   so we override the var per utility to restore the original timing. */
 @layer utilities {
-  .animate-blob       { animation: blob 8s infinite; }
-  .animate-float      { animation: float 6s ease-in-out infinite; }
+  .animate-blob { animation: blob 8s infinite; }
+  .animate-float { animation: float 6s ease-in-out infinite; }
   .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
-  .animate-shimmer    { animation: shimmer 2s linear infinite; }
-  .animate-fade-in    { animation: fadeIn 0.5s ease-out forwards; }
-  .animate-slide-up   { animation: slideUp 0.5s ease-out forwards; }
+  .animate-shimmer { animation: shimmer 2s linear infinite; }
+  .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+  .animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
   .animate-bounce-dot { animation: bounce-dot 1.4s ease-in-out infinite; }
 }
 
-/* Global Styles */
+
+:root {
+  --bg-base: #030405;
+  --bg-surface: rgba(17, 22, 25, 0.68);
+  --bg-surface-hover: rgba(255, 255, 255, 0.04);
+  --text-primary: #e8f7f9;
+  --text-secondary: #91a3aa;
+  --text-muted: #71858c;
+  --border-subtle: rgba(165, 243, 252, 0.14);
+  --border-strong: rgba(103, 232, 249, 0.35);
+  
+  --ink: #030405;
+  --ink-soft: #080a0c;
+  --glass: rgba(17, 22, 25, 0.68);
+  --glass-strong: rgba(10, 13, 15, 0.84);
+  --glass-border: rgba(165, 243, 252, 0.14);
+  --glass-border-strong: rgba(103, 232, 249, 0.35);
+  --cyan: #22d3ee;
+  --cyan-bright: #a5f3fc;
+  --muted: #91a3aa;
+}
+
+:root.theme-light {
+  --bg-base: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: rgba(0, 0, 0, 0.04);
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+  
+  --ink: #f1f5f9;
+  --ink-soft: #e2e8f0;
+  --glass: rgba(255, 255, 255, 0.85);
+  --glass-strong: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-border-strong: rgba(0, 0, 0, 0.2);
+  --cyan: #0891b2;
+  --cyan-bright: #0284c7;
+  --muted: #64748b;
+}
+
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.35) transparent;
+}
+
 body {
+  margin: 0;
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  background-color: #0a0e1a;
-  color: #f1f5f9;
+  color: #e8f7f9;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(8, 145, 178, 0.13), transparent 32rem),
+    radial-gradient(circle at 88% 82%, rgba(34, 211, 238, 0.08), transparent 28rem),
+    var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+
+
+@media (max-width: 480px) {
+  .auth-reference { padding: 0.8rem; }
+  .auth-phone-card {
+    min-height: calc(100vh - 1.6rem);
+    border-radius: 1.5rem;
+    padding-inline: 1.1rem;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* Auth panels use the same restrained black/cyan glass language as the dashboard. */
+.auth-reference {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.12), transparent 34rem),
+    radial-gradient(circle at 100% 100%, rgba(8, 145, 178, 0.1), transparent 28rem),
+    #030405 !important;
 }
 
+.auth-orb-one,
+.auth-orb-two {
+  background: #22d3ee;
+  opacity: 0.1;
+}
+
+.auth-orb-two {
+  background: #0891b2;
+}
+
+.auth-phone-card {
+  width: min(100%, 460px);
+  min-height: 0;
+  padding: 3rem 3.25rem 2.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(165, 243, 252, 0.18);
+  background: linear-gradient(145deg, rgba(18, 26, 29, 0.78), rgba(5, 7, 8, 0.86));
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(28px) saturate(130%);
+  -webkit-backdrop-filter: blur(28px) saturate(130%);
+}
+
+.auth-logo {
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-bottom: 1.25rem;
+  color: #22d3ee;
+  border-color: rgba(103, 232, 249, 0.25);
+  border-radius: 0.8rem;
+  background: rgba(34, 211, 238, 0.06);
+  box-shadow: 0 0 28px rgba(34, 211, 238, 0.13);
+}
+
+.auth-phone-card h1 {
+  color: #f0fdff !important;
+  font-size: 2rem;
+  text-align: left;
+}
+
+.auth-subtitle {
+  margin-bottom: 2rem;
+  color: #82969d;
+  text-align: left;
+}
+
+.auth-reference-form {
+  gap: 0.7rem;
+}
+
+.auth-reference-form > label:not(.auth-check) {
+  margin-top: 0.55rem;
+  color: #b8cbd0;
+  font-size: 0.75rem;
+}
+
+.auth-field {
+  min-height: 3.15rem;
+  border-color: rgba(165, 243, 252, 0.15);
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.auth-field:focus-within {
+  border-color: rgba(34, 211, 238, 0.62);
+  background: rgba(34, 211, 238, 0.045);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
+}
+
+.auth-field svg {
+  color: rgba(34, 211, 238, 0.72);
+}
+
+.auth-gradient-button {
+  min-height: 3.15rem;
+  margin-top: 0.85rem;
+  color: #021014 !important;
+  border-radius: 0.7rem;
+  background: linear-gradient(135deg, #0891b2, #22d3ee) !important;
+  box-shadow: 0 10px 28px rgba(34, 211, 238, 0.18);
+}
+
+.auth-gradient-button:hover {
+  background: linear-gradient(135deg, #06b6d4, #67e8f9) !important;
+}
+
+.auth-bottom-copy {
+  padding-top: 2rem;
+  color: #82969d;
+}
+
+.auth-bottom-copy a,
+.auth-options a {
+  color: #22d3ee;
+}
+
+@media (max-width: 480px) {
+  .auth-phone-card {
+    width: min(100%, 430px);
+    padding: 2.25rem 1.25rem 2rem;
+    border-radius: 0.85rem;
+  }
+}
+
+.auth-shell::before,
+.dashboard-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.3;
+  background-image: linear-gradient(rgba(165, 243, 252, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(165, 243, 252, 0.045) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.auth-shell [class*="backdrop-blur"],
+.dashboard-sidebar,
+.dashboard-main header,
+.dashboard-main [class*="bg-white/"],
+.dashboard-main [class*="bg-[#0f1629]"] {
+  background-color: var(--glass) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  backdrop-filter: blur(24px) saturate(135%);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
+}
+
+.auth-shell [class*="rounded-3xl"],
+.dashboard-main [class*="rounded-2xl"] {
+  border-color: var(--glass-border) !important;
+}
+
+.dashboard-main {
+  color: #e8f7f9;
+  background: transparent !important;
+}
+
+.dashboard-main header {
+  background-color: rgba(3, 4, 5, 0.68) !important;
+}
+
+.dashboard-main textarea {
+  color: #f0fdff !important;
+}
+
+.dashboard-main textarea::placeholder {
+  color: #71858c !important;
+}
+
+.dashboard-sidebar {
+  background-color: rgba(8, 10, 12, 0.78) !important;
+  border-right-color: var(--glass-border) !important;
+}
+
+.dashboard-main [class*="bg-gradient-to-r"].text-white {
+  background-image: linear-gradient(135deg, #0891b2, #22d3ee) !important;
+  box-shadow: 0 0 26px rgba(34, 211, 238, 0.2) !important;
+}
+
+.auth-shell [class*="bg-white/"],
+.dashboard-main [class*="bg-white/"] {
+  background-color: rgba(255, 255, 255, 0.045) !important;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.3);
-  border-radius: 3px;
+  background: rgba(34, 211, 238, 0.35);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(103, 232, 249, 0.65); }
+
+/* Auth screens use the same glossy-black and cyan language as the dashboard. */
+.auth-reference {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.14), transparent 30rem),
+    radial-gradient(circle at 10% 90%, rgba(8, 145, 178, 0.1), transparent 24rem),
+    #030405 !important;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.5);
+.auth-orb-one {
+  background: #06b6d4;
+  opacity: 0.16;
 }
 
-/* Firefox Scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+.auth-orb-two {
+  background: #22d3ee;
+  opacity: 0.1;
+}
+
+.auth-phone-card {
+  border-color: var(--glass-border) !important;
+  background:
+    linear-gradient(145deg, rgba(17, 24, 27, 0.82), rgba(4, 6, 7, 0.86)),
+    radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.1), transparent 48%) !important;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+.auth-logo {
+  color: var(--cyan) !important;
+  border-color: var(--glass-border-strong) !important;
+  background: rgba(8, 18, 21, 0.75) !important;
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.18) !important;
+}
+
+.auth-phone-card h1 {
+  color: #f0fdff !important;
+}
+
+.auth-subtitle,
+.auth-options,
+.auth-check,
+.auth-bottom-copy {
+  color: var(--muted);
+}
+
+.auth-options a,
+.auth-bottom-copy a {
+  color: var(--cyan-bright);
+}
+
+.auth-field {
+  border-color: var(--glass-border) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.auth-field:focus-within {
+  border-color: var(--glass-border-strong) !important;
+  background: rgba(8, 18, 21, 0.82) !important;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08) !important;
+}
+
+.auth-field button:hover {
+  color: var(--cyan-bright);
+}
+
+.auth-check input {
+  accent-color: var(--cyan);
+}
+
+.auth-gradient-button {
+  color: #021014 !important;
+  border-color: rgba(165, 243, 252, 0.35) !important;
+  background: linear-gradient(135deg, #0891b2, #22d3ee) !important;
+  box-shadow: 0 10px 28px rgba(34, 211, 238, 0.16) !important;
+}
+
+.auth-gradient-button:hover {
+  background: linear-gradient(135deg, #06b6d4, #67e8f9) !important;
+  box-shadow: 0 12px 36px rgba(34, 211, 238, 0.28) !important;
+}
+
+.auth-socials button {
+  border-color: var(--glass-border) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.auth-socials button:hover {
+  border-color: var(--glass-border-strong) !important;
+  background: rgba(34, 211, 238, 0.1) !important;
+}
+
+/* Final wide-panel composition: a floating glass surface matching the dashboard. */
+.auth-reference {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(34, 211, 238, 0.12), transparent 28rem),
+    radial-gradient(circle at 84% 82%, rgba(8, 145, 178, 0.1), transparent 26rem),
+    #030405 !important;
+}
+
+.auth-orb-one,
+.auth-orb-two {
+  width: 22rem;
+  height: 22rem;
+  opacity: 0.11;
+}
+
+.auth-orb-one {
+  top: -12rem;
+  left: 8%;
+  background: #22d3ee !important;
+}
+
+.auth-orb-two {
+  right: 10%;
+  bottom: -14rem;
+  background: #0891b2 !important;
+}
+
+.auth-phone-card {
+  width: min(100%, 900px);
+  min-height: 0;
+  padding: 4rem clamp(2rem, 7vw, 6rem) 3rem;
+  border-radius: 1.5rem;
+  border-color: rgba(165, 243, 252, 0.2) !important;
+  background:
+    linear-gradient(145deg, rgba(17, 24, 27, 0.82), rgba(4, 6, 7, 0.9)),
+    radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.09), transparent 55%) !important;
+  box-shadow:
+    0 35px 110px rgba(0, 0, 0, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 70px rgba(34, 211, 238, 0.025) !important;
+}
+
+.auth-logo {
+  width: 3.4rem;
+  height: 3.4rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.95rem;
+}
+
+.auth-phone-card h1 {
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  text-align: center;
+}
+
+.auth-subtitle {
+  margin-bottom: 2.3rem;
+  text-align: center;
+}
+
+.auth-reference-form {
+  width: min(100%, 560px);
+  margin: 0 auto;
+  gap: 0.65rem;
+}
+
+.auth-field {
+  min-height: 3.2rem;
+  border-radius: 0.75rem;
+}
+
+.auth-options {
+  margin-top: 0.45rem;
+}
+
+.auth-gradient-button {
+  min-height: 3.2rem;
+  margin-top: 1rem;
+  border-radius: 0.75rem;
+}
+
+.auth-bottom-copy {
+  padding-top: 2.4rem;
+}
+
+.auth-register-card {
+  padding-top: 2.25rem;
+  padding-bottom: 1.75rem;
+}
+
+.auth-register-card .auth-logo {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.8rem;
+}
+
+.auth-register-card .auth-subtitle {
+  margin-bottom: 1.35rem;
+}
+
+.auth-register-card .auth-reference-form {
+  gap: 0.45rem;
+}
+
+.auth-register-card .auth-reference-form > label:not(.auth-check) {
+  margin-top: 0.2rem;
+}
+
+.auth-register-card .auth-field {
+  min-height: 2.75rem;
+}
+
+.auth-register-card .auth-gradient-button {
+  min-height: 2.85rem;
+  margin-top: 0.6rem;
+}
+
+.auth-register-card .auth-bottom-copy {
+  padding-top: 1.35rem;
+}
+
+@media (max-width: 640px) {
+  .auth-reference {
+    padding: 1rem;
+  }
+
+  .auth-phone-card {
+    width: 100%;
+    padding: 2.5rem 1.25rem 2rem;
+    border-radius: 1.15rem;
+  }
+
+  .auth-register-card {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .auth-phone-card h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .auth-register-card {
+    padding-top: 1.15rem;
+    padding-bottom: 1rem;
+  }
+
+  .auth-register-card .auth-logo {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .auth-register-card .auth-subtitle {
+    margin-bottom: 0.75rem;
+  }
+
+  .auth-register-card .auth-bottom-copy {
+    padding-top: 0.85rem;
+  }
 }

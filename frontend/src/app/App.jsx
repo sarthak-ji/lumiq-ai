@@ -3,6 +3,7 @@ import {router} from './app.routes'
 import {RouterProvider} from 'react-router'
 import { useEffect } from 'react'
 import { useAuth } from '../features/auth/hooks/useAuth';
+import ThemeProvider from './ThemeProvider';
 
 
 const App = () => {
@@ -13,7 +14,9 @@ const App = () => {
   }, [])
 
   return (
-    <RouterProvider router={router} />
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   )
 }
 
